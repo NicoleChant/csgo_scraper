@@ -1,7 +1,6 @@
-from scraper import ScraperFactory
+from csgo_scraper.scraper import ScraperFactory
 import time
 from random import gauss
-import pandas as pd
 from google.cloud import bigquery
 from google.cloud.exceptions import NotFound
 import os
@@ -10,7 +9,7 @@ import logging
 
 logging.basicConfig(level = logging.INFO ,
                     format = "%(asctime)s:%(message)s",
-                    datetimefmt = "%Y-%M-%D %H-%M-%S")
+                    datefmt = "%Y-%M-%D %H:%M:%S")
 
 class App:
 
@@ -20,13 +19,14 @@ class App:
         self.bq = BigQuery("match")
 
     def run(self):
-        sampled_time = gauss(1200 , 120)
+        sampled_time = gauss(3600 , 200)
+        logging.info("Sending request...")
         while True:
             try:
                 data = self.scraper.parse_data()
                 self.bq.upload_data(data)
             except Exception as e:
-                continue
+                logging.info(f"An error occurred! {e}")
             time.sleep(sampled_time)
 
 
