@@ -6,6 +6,11 @@ from google.cloud import bigquery
 from google.cloud.exceptions import NotFound
 import os
 import json
+import logging
+
+logging.basicConfig(level = logging.INFO ,
+                    format = "%(asctime)s:%(message)s",
+                    datetimefmt = "%Y-%M-%D %H-%M-%S")
 
 class App:
 
@@ -16,11 +21,12 @@ class App:
 
     def run(self):
         sampled_time = gauss(1200 , 120)
-        print(sampled_time)
         while True:
-            data = self.scraper.parse_data()
-            print(data)
-            #self.bq.upload_data(data)
+            try:
+                data = self.scraper.parse_data()
+                self.bq.upload_data(data)
+            except Exception as e:
+                continue
             time.sleep(sampled_time)
 
 

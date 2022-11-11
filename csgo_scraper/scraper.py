@@ -9,20 +9,6 @@ from dataclasses import dataclass , field
 import re
 from datetime import datetime , timedelta
 from pytz import timezone
-from pydantic import BaseModel
-
-
-class Match(BaseModel):
-
-    league : str
-    rank : str
-    rank_num : int
-    upload_time : str
-    maps : str
-    first_team : list[str]
-    second_team : list[str]
-    first_team_score : int
-    second_team_score : int
 
 # class SecureSoup(BeautifulSoup):
 
