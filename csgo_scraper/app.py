@@ -22,7 +22,7 @@ class App:
         self.bq = BigQuery("match")
         self.discord_client = DiscordClient(title = "Scraping Report")
 
-    def run(self):
+    def run(self , upload : bool = True , only_once : bool = False):
         sampled_time = gauss(3600 , 200)
         logging.info("Sending request...")
         while True:
@@ -38,15 +38,20 @@ class App:
                 self.discord_client.send_webhook("CSGO Report" , data_length , unique_reports_number)
 
                 ##upload data
-                #self.bq.upload_data(unique_data)
+                if upload:
+                    self.bq.upload_data(unique_data)
+
             except Exception as e:
 
                 ##notify discord if something went wrong
                 self.discord_client.send_webhook("CSGO Report")
                 logging.info(f"An error occurred! {e}")
 
-            break
+            if only_once:
+                break
+
             time.sleep(sampled_time)
+
 
     def get_unique_matches(self , data : list[dict]) -> Union[bool ,list]:
         if not os.path.isdir("local_storage"):
@@ -117,11 +122,9 @@ class BigQuery:
     def delete_table(self):
         self.client.delete_table(self.table_id , not_found_ok = True)
 
-    def clean_duplicates(self):
-        pass
 
 
 if __name__ == "__main__":
     bq = BigQuery("match")
     app = App()
-    app.run()
+    app.run(upload = False , only_once = True)
