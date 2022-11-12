@@ -40,7 +40,7 @@ class App:
 
                 ##upload data
                 if upload:
-                    self.bq.upload_data(unique_data)
+                    self.bq.upload_data(unique_reports)
 
             except Exception as e:
 
@@ -128,12 +128,14 @@ class BigQuery:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t","--table",type=str)
-    parser.add_argument("-u","--upload",type=bool,default=True)
-    parser.add_argument("-oo","--only_once",type=bool,default=False)
+    parser.add_argument("-t","--table",type=str,default="match")
+    parser.add_argument("-u","--upload",type=str,default=True)
+    parser.add_argument("-oo","--only_once",type=str,default=False)
 
     args = parser.parse_args()
 
     bq = BigQuery(args.table)
     app = App()
-    app.run(upload = args.upload , only_once = args.only_once)
+
+
+    app.run(upload = eval(args.upload) , only_once = eval(args.only_once))
