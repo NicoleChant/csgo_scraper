@@ -1,0 +1,8 @@
+*.html
+*.egg-info
+*/__pycache__
+build
+.env
+.envrc
+.env.yaml
+.python-version
