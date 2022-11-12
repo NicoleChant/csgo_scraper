@@ -138,14 +138,13 @@ if __name__ == "__main__":
     bq = BigQuery(args.table)
     app = App()
 
-    if isinstance(upload , str):
-        upload = eval(args.upload)
-    else:
-        upload = args.upload
+    upload = args.upload
+    only_once = args.only_once
 
     if isinstance(upload , str):
-        only_once = eval(args.only_once)
-    else:
-        only_once = args.only_once
+        upload = eval(upload)
+
+    if isinstance(args.upload , str):
+        only_once = eval(only_once)
 
     app.run(upload = upload , only_once = only_once)
