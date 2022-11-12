@@ -60,6 +60,7 @@ class App:
 
         try:
             ##Read old data if they exist
+            unique_data = None
             if os.path.isfile("local_storage/temp_data.json"):
                 with open("local_storage/temp_data.json" , encoding = "utf-8" , mode = "r+") as f:
                     past_data = json.load(f)
@@ -72,7 +73,7 @@ class App:
                 json.dump(data , f)
 
             #returns the filtered unique data
-            return unique_data
+            return unique_data if unique_data else data
         except OSError as e:
 
             ##if something goes wrong return False
