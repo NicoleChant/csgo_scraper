@@ -1,0 +1,18 @@
+name: MergeFlow
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  pull-request:
+    name: Open PR to master branch
+    runs_on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        name: checkout
+      - name: create pull request
+        run: gh pr create -B base_branch -H branch_to_merge --title 'Merge branch_to_merge into base_branch' --body 'Created by Github action'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
