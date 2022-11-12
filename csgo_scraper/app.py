@@ -1,4 +1,5 @@
 from csgo_scraper.scraper import ScraperFactory
+from csgo_scraper.webhook import DiscordClient
 import time
 from random import gauss
 from google.cloud import bigquery
@@ -6,6 +7,8 @@ from google.cloud.exceptions import NotFound
 import os
 import json
 import logging
+from typing import Union
+from pathlib import Path
 
 logging.basicConfig(level = logging.INFO ,
                     format = "%(asctime)s:%(message)s",
@@ -17,6 +20,7 @@ class App:
         self.factory = ScraperFactory()
         self.scraper = self.factory.get_scraper("Matches")
         self.bq = BigQuery("match")
+        self.discord_client = DiscordClient(title = "Scraping Report")
 
     def run(self):
         sampled_time = gauss(3600 , 200)
@@ -24,10 +28,48 @@ class App:
         while True:
             try:
                 data = self.scraper.parse_data()
-                self.bq.upload_data(data)
+                unique_reports = self.get_unique_matches(data)
+
+                ##data stats
+                data_length = len(data)
+                unique_reports_number = len(unique_reports)
+
+                ##send discord webhook
+                self.discord_client.send_webhook("CSGO Report" , data_length , unique_reports_number)
+
+                ##upload data
+                #self.bq.upload_data(unique_data)
             except Exception as e:
+
+                ##notify discord if something went wrong
+                self.discord_client.send_webhook("CSGO Report")
                 logging.info(f"An error occurred! {e}")
+
+            break
             time.sleep(sampled_time)
+
+    def get_unique_matches(self , data : list[dict]) -> Union[bool ,list]:
+        if not os.path.isdir("local_storage"):
+            os.mkdir("local_storage")
+
+        try:
+            ##Read old data if they exist
+            if os.path.isfile("local_storage/temp_data.json"):
+                with open("local_storage/temp_data.json" , encoding = "utf-8" , mode = "r+") as f:
+                    past_data = json.load(f)
+
+                past_match_ids = list(map(lambda row : row["match_id"] , past_data))
+                unique_data = list(filter(lambda x: x["match_id"] not in past_match_ids, data))
+
+            #rewrite the current data as past data in the local storage directory
+            with open("local_storage/temp_data.json" , encoding = "utf-8" , mode = "w+") as f:
+                json.dump(data , f)
+
+            #returns the filtered unique data
+            return unique_data
+        except OSError as e:
+            ##if something goes wrong return False
+            return False
 
 
 class BigQuery:
