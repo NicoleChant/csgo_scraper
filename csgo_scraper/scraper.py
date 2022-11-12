@@ -26,9 +26,9 @@ class Scraper:
 
     def __init__(self):
         self.scraper = cloudscraper.create_scraper()
-        self.base_url = "https://csgostats.gg"
+        self.base_url = os.getenv("BASE_URL")
         self.offline_dir = pathlib.Path("offline_scraping/")
-        self.tz = timezone('Europe/Madrid')
+        self.tz = timezone(os.getenv("LOCATION"))
 
     def store_html(self , endpoint : str , max_depth : int = 1) -> bool:
         if max_depth > 2:
@@ -124,6 +124,7 @@ class MatchesScraper(Scraper):
 
         first_team_score , second_team_score = tuple(map(lambda tag : tag.text.strip() ,
                                         row.find_all("td" , class_ = "team-score")))
+
         return {"match_id" : int(match_id) ,
                 "league":league ,
                 "rank_title" : rank_title ,
@@ -164,7 +165,7 @@ if __name__ == "__main__":
     ##offline scraping
 
     factory = ScraperFactory()
-    scraper = factory.get_scraper("Matches")
+    scraper = factory.get_scraper(os.getenv("TABLE_ID"))
     #scraper.store_html(endpoint = "match")
 
     parsed_data = scraper.parse_data(offline = True)

@@ -20,7 +20,7 @@ class App:
     def __init__(self):
         self.factory = ScraperFactory()
         self.scraper = self.factory.get_scraper("Matches")
-        self.bq = BigQuery("match")
+        self.bq = BigQuery(os.getenv("TABLE_ID"))
         self.discord_client = DiscordClient(title = "Scraping Report")
 
     def run(self , average_waiting_time : float = 1800 , std : float = 50 , upload : bool = True , only_once : bool = False):
