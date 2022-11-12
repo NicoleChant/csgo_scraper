@@ -22,8 +22,8 @@ class App:
         self.bq = BigQuery("match")
         self.discord_client = DiscordClient(title = "Scraping Report")
 
-    def run(self , upload : bool = True , only_once : bool = False):
-        sampled_time = gauss(3600 , 200)
+    def run(self , average_waiting_time : float = 1800 , std : float = 50 , upload : bool = True , only_once : bool = False):
+        sampled_time = gauss(average_waiting_time , std)
         logging.info("Sending request...")
         while True:
             try:
