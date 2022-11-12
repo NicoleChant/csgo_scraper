@@ -39,20 +39,3 @@ class DiscordClient:
 if __name__ == "__main__":
     ##test
     send_webhook_disc("Hey")
-
-
-# files = {
-#     'file': ('./csgo_discord.jpg', open('./csgo_discord.jpg', 'rb')),
-# }
-
-# def send_webhook(description : str):
-#     data = {"content":"Hello",
-#         "username": "CSGOScraper"}
-
-#     data["embeds"] = [{
-#         "description": str(description),
-#         "title": "Scraped matches",
-#         "url": "https://csgostats.gg/match"
-#     }]
-#     return requests.post(os.environ.get("WEBHOOK_URL"),
-#                         json = data )
