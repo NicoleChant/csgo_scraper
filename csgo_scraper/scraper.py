@@ -88,7 +88,8 @@ class MatchesScraper(Scraper):
     def _parse_row(self , row) -> dict:
         """HTML row parser for matches table"""
 
-        match_id = re.search(re.compile(r"/match/(\d+)") , row.find("a" , href = lambda href : href and re.compile(r"/match/(\d+)").search(href)).attrs["href"]).group(1)
+        match_id = re.search(re.compile(r"/match/(\d+)") ,
+                    row.find("a" , href = lambda href : href and re.compile(r"/match/(\d+)").search(href)).attrs["href"]).group(1)
         league = self.protect_tag(row.find("td").find("img")).split("/")[-1].strip(".png")
 
         if "-" in league:
@@ -123,7 +124,7 @@ class MatchesScraper(Scraper):
 
         first_team_score , second_team_score = tuple(map(lambda tag : tag.text.strip() ,
                                         row.find_all("td" , class_ = "team-score")))
-        return {"match_id" : match_id ,
+        return {"match_id" : int(match_id) ,
                 "league":league ,
                 "rank_title" : rank_title ,
                 "rank_num": rank_num ,
