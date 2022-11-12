@@ -37,5 +37,7 @@ class DiscordClient:
                     content= "CSGO: WebScraping Hourly Report")
 
 if __name__ == "__main__":
+
     ##test
-    send_webhook_disc("Hey")
+    message = "Welcome!"
+    send_webhook_disc(message)
