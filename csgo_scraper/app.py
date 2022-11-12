@@ -9,6 +9,7 @@ import json
 import logging
 from typing import Union
 from pathlib import Path
+import argparse
 
 logging.basicConfig(level = logging.INFO ,
                     format = "%(asctime)s:%(message)s",
@@ -73,6 +74,7 @@ class App:
             #returns the filtered unique data
             return unique_data
         except OSError as e:
+
             ##if something goes wrong return False
             return False
 
@@ -125,6 +127,13 @@ class BigQuery:
 
 
 if __name__ == "__main__":
-    bq = BigQuery("match")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t","--table",type=str)
+    parser.add_argument("-u","--upload",type=bool,default=True)
+    parser.add_argument("-oo","--only_once",type=bool,default=False)
+
+    args = parser.parse_args()
+
+    bq = BigQuery(args.table)
     app = App()
-    app.run(upload = False , only_once = True)
+    app.run(upload = args.upload , only_once = args.only_once)
