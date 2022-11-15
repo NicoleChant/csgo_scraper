@@ -2,7 +2,7 @@ import pytest
 
 class TestMatchScraper:
 
-    def dummy_test(self):
+    def dummy_test(self , match_scraper):
         assert 1==1
 
     # NOT AVAILABLE IN FREE TRIAL
