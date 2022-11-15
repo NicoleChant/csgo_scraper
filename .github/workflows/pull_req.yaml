@@ -20,10 +20,10 @@ jobs:
         pip install .
     - name: create env variables
       run: |
-        echo "export BASE_URL=${{ secrets.BASE_URL }}" >> ~/.bashrc
-        echo "export LOCATION=${{ secrets.LOCATION }}" >> ~/.bashrc
+        echo "export BASE_URL='${{ secrets.BASE_URL }}'" >> ~/.bashrc
+        echo "export LOCATION='${{ secrets.LOCATION }}'" >> ~/.bashrc
         source ~/.bashrc
-        cat ~/.bashrc | head -n 8
+        cat ~/.bashrc | head -n 20
     - name: Lint with flake8
       run: |
         flake8 . --count --select=E9,F7,F82,F63 --show-source --statistics
