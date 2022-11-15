@@ -2,14 +2,13 @@ from csgo_scraper.scraper import ScraperFactory
 from csgo_scraper.webhook import DiscordClient
 import time
 from random import gauss
-from google.cloud import bigquery
-from google.cloud.exceptions import NotFound
 import os
 import json
 import logging
 from typing import Union
 from pathlib import Path
 import argparse
+from csgo_scraper.data_sources.big_query import BigQuery
 
 logging.basicConfig(level = logging.INFO ,
                     format = "%(asctime)s:%(message)s",
@@ -54,7 +53,7 @@ class App:
             time.sleep(sampled_time)
 
 
-    def get_unique_matches(self , data : list[dict]) -> Union[bool ,list]:
+    def get_unique_matches(self , data : list[dict] , verbose : bool = False) -> Union[bool ,list]:
         if not os.path.isdir("local_storage"):
             os.mkdir("local_storage")
 
@@ -66,11 +65,19 @@ class App:
                     past_data = json.load(f)
 
                 past_match_ids = list(map(lambda row : row["match_id"] , past_data))
-                unique_data = list(filter(lambda x: x["match_id"] not in past_match_ids, data))
+                unique_data = list(filter(lambda x: x["match_id"] not in past_match_ids , data))
+
+                if verbose:
+                    for row in data:
+                        if row["match_id"] not in past_match_ids:
+                            print("[*" + row["rank_title"] + " " + str(row["match_id"]) + "*]")
+                        else:
+                            print("  " + row["rank_title"] + " " + str(row["match_id"]) + "  ")
+
 
             #rewrite the current data as past data in the local storage directory
             with open("local_storage/temp_data.json" , encoding = "utf-8" , mode = "w+") as f:
-                json.dump(data , f)
+                json.dump(data , f , indent = 2)
 
             #returns the filtered unique data
             return unique_data if unique_data else data
@@ -80,54 +87,27 @@ class App:
             return False
 
 
-class BigQuery:
+def main():
+    ##offline scraping
 
-    def __init__(self , table_name : str):
-        self.client = bigquery.Client()
-        self.table_id = f"{os.environ.get('PROJECT_ID')}.{os.environ.get('DATASET_ID')}.{table_name}"
+    factory = ScraperFactory()
+    scraper = factory.get_scraper("Matches")
+    #scraper.store_html(endpoint = "match")
 
-    def create_table(self):
-        schema = [
-            bigquery.SchemaField("match_id", "INT64", mode="REQUIRED"),
-            bigquery.SchemaField("league", "STRING"),
-            bigquery.SchemaField("rank_num", "STRING"),
-            bigquery.SchemaField("rank_title", "STRING"),
-            bigquery.SchemaField("map", "STRING"),
-            bigquery.SchemaField("team_scores", "RECORD" , mode = "NUlLABLE",
-                            fields = (bigquery.SchemaField("first","INT64"),
-                                      bigquery.SchemaField("second","INT64"))
-                                      ),
-            bigquery.SchemaField("upload_time", "STRING"),
-            bigquery.SchemaField("teams", "RECORD" , mode = "NULLABLE",
-                        fields=( bigquery.SchemaField("first" , "RECORD" , mode = "REPEATED" ,
-                                                fields=(
-                    bigquery.SchemaField('player', 'STRING'),
-                            )),
-                        bigquery.SchemaField("second" , "RECORD" , mode = "REPEATED",
-                                fields = (
-                                    bigquery.SchemaField("player","STRING"),
-                                )
-                        )
-                        )
-                    )
-            ]
-        table = bigquery.Table(self.table_id, schema=schema)
-        table = self.client.create_table(table)
-        print("Created table {}.{}.{}".format(table.project,
-                                              table.dataset_id,
-                                              table.table_id))
+    parsed_data = scraper.parse_data(offline = False)
+    import sys
+    unique_data = app.get_unique_matches(parsed_data)
+    print(f"Unique data length {len(unique_data)}.")
+    print(f"All data length {len(parsed_data)}")
 
-
-    def upload_data(self , data : dict):
-        #table = self.client.get_table(self.table_id)
-        errors = self.client.insert_rows_json(self.table_id , data)
-
-    def delete_table(self):
-        self.client.delete_table(self.table_id , not_found_ok = True)
-
+    sys.exit(0)
 
 
 if __name__ == "__main__":
+
+    app = App()
+
+    ##CLI App
     parser = argparse.ArgumentParser()
     parser.add_argument("-t","--table",type=str,default="match")
     parser.add_argument("-u","--upload",type=str,default=True)
@@ -136,7 +116,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     bq = BigQuery(args.table)
-    app = App()
 
     upload = args.upload
     only_once = args.only_once
