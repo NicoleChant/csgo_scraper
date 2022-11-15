@@ -2,11 +2,19 @@ import pytest
 
 class TestMatchScraper:
 
-    def dummy_test(self , match_scraper):
-        assert 1==1
+    @pytest.fixture(scope="class")
+    def base_url(self , match_scraper):
+        yield match_scraper.base_url
+
+    def test_valid_base_url(self , base_url):
+        assert isinstance(base_url , str)
+        assert "/" in base_url
+        assert ":" in base_url
+        assert "." in base_url
 
     # NOT AVAILABLE IN FREE TRIAL
-    # @pytest.fixture(scope="class")
+
+    # @pyest.fixture(scope="class")
     # def match_data(self , match_scraper):
     #     yield match_scraper.parse_data()
 
