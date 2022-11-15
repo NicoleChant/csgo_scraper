@@ -160,13 +160,3 @@ class ScraperFactory():
         scraper = self.scrapers.get(scraper_name.strip())
         if scraper:
             return scraper(*args , **kwargs)
-
-if __name__ == "__main__":
-    ##offline scraping
-
-    factory = ScraperFactory()
-    scraper = factory.get_scraper(os.getenv("TABLE_ID"))
-    #scraper.store_html(endpoint = "match")
-
-    parsed_data = scraper.parse_data(offline = True)
-    print(repr(parsed_data[0]))
