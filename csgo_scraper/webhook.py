@@ -40,4 +40,4 @@ if __name__ == "__main__":
 
     ##test
     message = "Welcome!"
-    send_webhook_disc(message)
+    DiscordClient(title="csgo").send_webhook(message)
