@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import bs4
 import pathlib
+import os
 from abc import abstractmethod , ABC
 from dataclasses import dataclass , field
 import re
@@ -151,10 +152,14 @@ class MatchesScraper(Scraper):
         return data
 
 
-class ScraperFactory():
+class ScraperFactory:
 
     def __init__(self):
         self.scrapers = {"Matches": MatchesScraper}
+
+    def get_next(self):
+        for scraper in self.scrapers.values():
+            yield scraper()
 
     def get_scraper(self , scraper_name : str , *args , **kwargs):
         scraper = self.scrapers.get(scraper_name.strip())
