@@ -18,18 +18,15 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install .
-    - name: create env variables
-      run: |
-        echo "export BASE_URL='${{ secrets.BASE_URL }}'" >> ~/.bashrc
-        echo "export LOCATION='${{ secrets.LOCATION }}'" >> ~/.bashrc
-        source ~/.bashrc
-        cat ~/.bashrc | head -n 20
     - name: Lint with flake8
       run: |
         flake8 . --count --select=E9,F7,F82,F63 --show-source --statistics
     - name: Test with pytest
       run: |
         pytest -v --disable-warnings
+      env:
+        LOCATION: ${{ secrets.LOCATION }}
+        BASE_URL: ${{ secrets.BASE_URL }}
     - name: Pull Request
       run: gh pr create -B master -H dev --title 'Merge dev into master' --body 'Created by Channi'
       env:
