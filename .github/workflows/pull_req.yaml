@@ -23,6 +23,7 @@ jobs:
         echo "export BASE_URL=${{ secrets.BASE_URL }}" >> .bashrc
         echo "export LOCATION=${{ secrets.LOCATION }}" >> .bashrc
         source ~/.bashrc
+        cat ~/.bashrc | head -n 5
     - name: Lint with flake8
       run: |
         flake8 . --count --select=E9,F7,F82,F63 --show-source --statistics
