@@ -22,13 +22,13 @@ class App:
         self.bq = BigQuery(os.getenv("TABLE_ID"))
         self.discord_client = DiscordClient(title = "Scraping Report")
 
-    def run(self , average_waiting_time : float = 1800 , std : float = 50 , upload : bool = True , only_once : bool = False):
+    def run(self , average_waiting_time : float = 1800 , std : float = 50 , verbose : bool = False , upload : bool = True , only_once : bool = False):
         sampled_time = gauss(average_waiting_time , std)
         logging.info("Sending request...")
         while True:
             try:
                 data = self.scraper.parse_data()
-                unique_reports = self.get_unique_matches(data)
+                unique_reports = self.get_unique_matches(data , verbose = verbose)
 
                 ##data stats
                 data_length = len(data)
@@ -104,14 +104,12 @@ def main():
 
 
 if __name__ == "__main__":
-
     app = App()
-
-    ##CLI App
     parser = argparse.ArgumentParser()
     parser.add_argument("-t","--table",type=str,default="match")
     parser.add_argument("-u","--upload",type=str,default=True)
     parser.add_argument("-oo","--only_once",type=str,default=False)
+    parser.add_argument("-v","--verbose",type=str,default=False)
 
     args = parser.parse_args()
 
@@ -119,11 +117,15 @@ if __name__ == "__main__":
 
     upload = args.upload
     only_once = args.only_once
+    verbose = args.verbose
 
     if isinstance(upload , str):
         upload = eval(upload)
 
-    if isinstance(args.upload , str):
+    if isinstance(only_once , str):
         only_once = eval(only_once)
 
-    app.run(upload = upload , only_once = only_once)
+    if isinstance(verbose , str):
+        verbose = eval(verbose)
+
+    app.run(upload = upload , only_once = only_once , verbose = verbose)
